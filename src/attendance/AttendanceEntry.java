@@ -14,15 +14,34 @@ import javax.swing.event.*;
 import java.awt.event.*;
 import javax.swing.text.*;
 import java.awt.Toolkit;
+import java.sql.*;
 public class AttendanceEntry extends JFrame{
 
     /**
      * Creates new form AttendanceEntry
      */
     JTextField students[][];
-    public AttendanceEntry() {
+    public AttendanceEntry(boolean value) {
         initComponents();
-        getStudent();
+        ResultSet result;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection con = DriverManager.
+                getConnection("jdbc:mysql://localhost:3306/attendance_management","root","");
+            String query="select Stud_RollNo from student_details where Stud_Class='"+std.getText()+"' and Combo_ID in (select comb_id from subject_paper where sub_id=(select sub_id from subject where subject='PHYSICS' )) order by Stud_RollNo";
+            PreparedStatement stmt=con.prepareStatement(query); 
+             result =stmt.executeQuery();
+            
+            getStudent(result,value);
+            System.out.println("Created DB Connection....");
+        } catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+      
     }
 
     /**
@@ -45,6 +64,8 @@ public class AttendanceEntry extends JFrame{
         jComboBox1 = new javax.swing.JComboBox<String>();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        std = new javax.swing.JLabel();
         jSplitPane2 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel2 = new javax.swing.JPanel();
@@ -76,6 +97,10 @@ public class AttendanceEntry extends JFrame{
 
         jLabel7.setText("1");
 
+        jLabel8.setText("Class  :");
+
+        std.setText("fy");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -86,16 +111,19 @@ public class AttendanceEntry extends JFrame{
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 156, Short.MAX_VALUE)
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 154, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(std)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -104,7 +132,9 @@ public class AttendanceEntry extends JFrame{
                 .addContainerGap(36, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 21, Short.MAX_VALUE))
+                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 21, Short.MAX_VALUE)
+                    .addComponent(jLabel8)
+                    .addComponent(std))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -118,7 +148,7 @@ public class AttendanceEntry extends JFrame{
         ((AbstractDocument)jTextField1.getDocument()).setDocumentFilter(
             new MyDocumentFilter());
 
-        jSplitPane1.setLeftComponent(jPanel1);
+        jSplitPane1.setTopComponent(jPanel1);
 
         jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
@@ -157,20 +187,19 @@ public class AttendanceEntry extends JFrame{
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap(162, Short.MAX_VALUE)
+                .addContainerGap(145, Short.MAX_VALUE)
                 .addComponent(jButton1)
-                .addGap(18, 18, 18)
+                .addGap(27, 27, 27)
                 .addComponent(jButton2)
-                .addGap(143, 143, 143))
+                .addGap(151, 151, 151))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(0, 56, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addGap(19, 19, 19))
+                    .addComponent(jButton2)))
         );
 
         jSplitPane2.setBottomComponent(jPanel3);
@@ -195,35 +224,44 @@ public class AttendanceEntry extends JFrame{
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public JTextField[][] getStudent() {
-        students=new JTextField[12][3];//size will be equal to resultset.getRow()
+    public JTextField[][] getStudent(ResultSet result,boolean value) {
+        try{
+       result.last(); 
+
+        students=new JTextField[result.getRow()][3];//size will be equal to resultset.getRow()
+        result.beforeFirst();
+        
         System.out.println(students.length);
-        for(int i=0;i<students.length;i++)
+        for(int i=0;i<students.length && result.next();i++)
         {
             students[i][0]=new JTextField(""+(i+1));
             students[i][0].setEditable(false);
             students[i][0].setHorizontalAlignment(SwingConstants.CENTER);
              students[i][0].setSize(40, 30);
             jPanel2.add( students[i][0]);
-            students[i][1]=new JTextField(i+6501+"");
+            students[i][1]=new JTextField(result.getInt("Stud_RollNo")+"");
             students[i][1].setEditable(false);
             students[i][1].setHorizontalAlignment(SwingConstants.CENTER);
-            students[i][0].setSize(60, 30);
+            students[i][1].setSize(60, 30);
             jPanel2.add( students[i][1]);
             students[i][2]=new JTextField();
 			((AbstractDocument)students[i][2].getDocument()).putProperty("name","attendedlecture");
 			 ((AbstractDocument)students[i][2].getDocument()).setDocumentFilter(
                 new MyDocumentFilter()); 
             students[i][2].setHorizontalAlignment(SwingConstants.CENTER);
-            students[i][0].setSize(40, 30);
+            students[i][2].setSize(40, 30);
             jPanel2.add( students[i][2]);
             
            // students[i][2].addActionListener();
         }
         
         
+        
+        }catch(Exception e)
+        {}
         return students;
     }
+    
 
     public void setStudent(JTextField[][] student) {
         this.students = students;
@@ -267,7 +305,7 @@ public class AttendanceEntry extends JFrame{
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new AttendanceEntry().setVisible(true);
+                new AttendanceEntry(true).setVisible(true);
             }
         });
     }
@@ -283,6 +321,7 @@ public class AttendanceEntry extends JFrame{
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -290,6 +329,7 @@ public class AttendanceEntry extends JFrame{
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel std;
     // End of variables declaration//GEN-END:variables
 	
     class MyDocumentFilter extends DocumentFilter
